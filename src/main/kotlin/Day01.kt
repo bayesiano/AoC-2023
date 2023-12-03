@@ -6,10 +6,10 @@ object Day01 {
     @JvmInline
     value class CoordX( val x: Int)
 
-    data class PartNumber(val number: Long, val x0: Int, val x1: Int) {
-        constructor( number: StringBuilder, x0: Int) : this( number.toString().toLong(), x0-1, x0 + number.length)
+    data class PartNumber(val number: Long, val range: IntRange) {
+        constructor( number: StringBuilder, x0: Int) : this( number.toString().toLong(), IntRange(x0-1, x0 + number.length))
 
-        fun touches( x: Int) = x in x0..x1
+        fun touches( x: Int) = x in range
     }
 
     data class Line(val numbers: List<PartNumber>, val symbolCoords: List<CoordX>)
@@ -31,7 +31,7 @@ object Day01 {
 
     private fun runProblem(filename: String, function: (List<String>) -> Long): Long {
         val lines = File(Day01.javaClass.classLoader.getResource(filename)!!.file).readLines()
-        var res = -1L
+        var res: Long
         val ms = measureTimeMillis {
             res = function( lines)
         }
@@ -96,7 +96,7 @@ object Day01 {
 
         val res = filtered.flatMap { l ->
             l.map { gear ->
-                gear[0].number.toLong() * gear[1].number.toLong()
+                gear[0].number * gear[1].number
             }
         }.sum()
         return res
