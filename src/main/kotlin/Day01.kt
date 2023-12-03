@@ -1,104 +1,65 @@
-import java.io.File
-import kotlin.system.measureTimeMillis
-import kotlin.text.StringBuilder
+
 
 object Day01 {
-    @JvmInline
-    value class CoordX( val x: Int)
-
-    data class PartNumber(val number: Long, val range: IntRange) {
-        constructor( number: StringBuilder, x0: Int) : this( number.toString().toLong(), IntRange(x0-1, x0 + number.length))
-
-        fun touches( x: Int) = x in range
-    }
-
-    data class Line(val numbers: List<PartNumber>, val symbolCoords: List<CoordX>)
-
-    private const val EmptyChar = '.'
 
     @JvmStatic
-    fun main( args: Array<String>) {
-        val example1 = runProblem( "day01/in_1.txt") { lines: List<String> -> solveProblem1( lines ) }
-        assert( example1 == 533784L)
-        val prloblem1 = runProblem( "day01/in_2.txt") { lines: List<String> -> solveProblem1( lines ) }
-        assert( prloblem1 == 533784L)
+    fun main(args: Array<String>) {
+        val example1 = runProblem("day01/in_example_1.txt", ::solveProblem1)
+        assert(example1 == 142) { System.err.println("ERROR at Example 1") }
 
-        val example2 = runProblem( "day01/in_b_1.txt") { lines: List<String> -> solveProblem2( lines ) }
-        assert( example2 == 467835L)
-        val prloblem2 = runProblem( "day01/in_2.txt") { lines: List<String> -> solveProblem2( lines ) }
-        assert( prloblem2 == 78826761L)
+        val problem1 = runProblem("day01/in_problem_1.txt", ::solveProblem1)
+        assert(problem1 == 53080) { System.err.println("ERROR at Problem 1") }
+
+        val example2 = runProblem("day01/in_example_2.txt", ::solveProblem2)
+        assert(example2 == 281) { System.err.println("ERROR at Example 2") }
+
+        val problem2 = runProblem("day01/in_problem_1.txt", ::solveProblem2)
+        assert(problem2 == 53268) { System.err.println("ERROR at Example 2") }
+
     }
 
-    private fun runProblem(filename: String, function: (List<String>) -> Long): Long {
-        val lines = File(Day01.javaClass.classLoader.getResource(filename)!!.file).readLines()
-        var res: Long
-        val ms = measureTimeMillis {
-            res = function( lines)
+
+    private fun solveProblem1(lines: List<String>): Int {
+        val codes = lines.map { line ->
+            val firstDigit = line.find { it.isDigit() }!!.digitToInt()
+            val lasttDigit = line.findLast { it.isDigit() }!!.digitToInt()
+            //println( "$firstDigit-$lasttDigit")
+            firstDigit * 10 + lasttDigit
         }
-        println( "Response = $res,  time=$ms ms")
-        return res
+        println("codes=$codes")
+        return codes.sum()
     }
 
-    private fun solveProblem1(lines: List<String>): Long {
-        val candidates = generateCandidates( lines)
-        val filtered = candidates.mapIndexed { y, line ->
-            val lineFiltered = line.numbers.filter { n ->
-                candidates[y].symbolCoords.any { n.touches(it.x) }
-                        || (y > 0 && candidates[y-1].symbolCoords.any { n.touches(it.x) })
-                        || (y < candidates.size-1 && candidates[y+1].symbolCoords.any { n.touches(it.x) })
-            }
-            lineFiltered
+    val strDigits = listOf(
+        "one" to 1, "two" to 2, "three" to 3, "four" to 4, "five" to 5,
+        "six" to 6, "seven" to 7, "eight" to 8, "nine" to 9,
+        "0" to 0, "1" to 1, "2" to 2, "3" to 3, "4" to 4,
+        "5" to 5, "6" to 6, "7" to 7, "8" to 8, "9" to 9
+    )
+
+    private fun solveProblem2(lines: List<String>): Int {
+        val codes = lines.map { line ->
+            val firstDigit = searchFirst(line)
+            val lastDigit = searchLast(line)
+            println("$firstDigit-$lastDigit")
+            firstDigit * 10 + lastDigit
         }
-
-        val res1 = filtered.map { it.map{ it.number }.sum() }
-        val res = res1.sum()
-        return res
+        println("codes=$codes")
+        return codes.sum()
     }
 
-    private fun generateCandidates(lines: List<String>) =
-        lines.map { line ->
-            val numbers = mutableListOf<PartNumber>()
-            val symbolCoords = mutableListOf<CoordX>()
-            var partialNumber = StringBuilder("")
-            var x0 = -1
+    private fun searchFirst(line: String) =
+        strDigits.mapNotNull { digit ->
+            val i = line.indexOf(digit.first)
+            if (i < 0) null
+            else i to digit.second
+        }.minBy { it.first }.second
 
-            line.forEachIndexed { x, c ->
-                if (c.isDigit()) {
-                    if(partialNumber.isEmpty()) x0 = x
-                    partialNumber.append(c)
-                }
-                else if( !c.isDigit()) {
-                    if( partialNumber.isNotEmpty()) {
-                        numbers += PartNumber(partialNumber, x0)
-                        partialNumber = StringBuilder("")
-//                        x0 = -1
-                    }
-                }
-                if( c != EmptyChar && !c.isDigit()) symbolCoords += CoordX(x)
-            }
-            if( partialNumber.isNotEmpty())
-                numbers += PartNumber(partialNumber, x0)
+    private fun searchLast(line: String) =
+        strDigits.mapNotNull { digit ->
+            val i = line.lastIndexOf(digit.first)
+            if (i < 0) null
+            else i to digit.second
+        }.maxBy { it.first }.second
 
-            Line( numbers, symbolCoords)
-        }
-
-    private fun solveProblem2(lines: List<String> ): Long {
-        val candidates = generateCandidates( lines)
-
-        val filtered = candidates.mapIndexed { y, line ->
-            val gearsParts = line.symbolCoords.map { c ->
-                line.numbers.filter { it.touches( c.x) } +
-                        candidates[y-1].numbers.filter { it.touches( c.x) } +
-                        candidates[y+1].numbers.filter { it.touches( c.x) }
-            }
-            gearsParts
-        }.map { it.filter { it.size > 1}}
-
-        val res = filtered.flatMap { l ->
-            l.map { gear ->
-                gear[0].number * gear[1].number
-            }
-        }.sum()
-        return res
-    }
 }
