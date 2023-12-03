@@ -1,0 +1,104 @@
+import java.io.File
+import kotlin.system.measureTimeMillis
+import kotlin.text.StringBuilder
+
+object Day01 {
+    @JvmInline
+    value class CoordX( val x: Int)
+
+    data class PartNumber(val number: Long, val x0: Int, val x1: Int) {
+        constructor( number: StringBuilder, x0: Int) : this( number.toString().toLong(), x0-1, x0 + number.length)
+
+        fun touches( x: Int) = x in x0..x1
+    }
+
+    data class Line(val numbers: List<PartNumber>, val symbolCoords: List<CoordX>)
+
+    private const val EmptyChar = '.'
+
+    @JvmStatic
+    fun main( args: Array<String>) {
+        val example1 = runProblem( "day01/in_1.txt") { lines: List<String> -> solveProblem1( lines ) }
+        assert( example1 == 533784L)
+        val prloblem1 = runProblem( "day01/in_2.txt") { lines: List<String> -> solveProblem1( lines ) }
+        assert( prloblem1 == 533784L)
+
+        val example2 = runProblem( "day01/in_b_1.txt") { lines: List<String> -> solveProblem2( lines ) }
+        assert( example2 == 467835L)
+        val prloblem2 = runProblem( "day01/in_2.txt") { lines: List<String> -> solveProblem2( lines ) }
+        assert( prloblem2 == 78826761L)
+    }
+
+    private fun runProblem(filename: String, function: (List<String>) -> Long): Long {
+        val lines = File(Day01.javaClass.classLoader.getResource(filename)!!.file).readLines()
+        var res = -1L
+        val ms = measureTimeMillis {
+            res = function( lines)
+        }
+        println( "Response = $res,  time=$ms ms")
+        return res
+    }
+
+    private fun solveProblem1(lines: List<String>): Long {
+        val candidates = generateCandidates( lines)
+        val filtered = candidates.mapIndexed { y, line ->
+            val lineFiltered = line.numbers.filter { n ->
+                candidates[y].symbolCoords.any { n.touches(it.x) }
+                        || (y > 0 && candidates[y-1].symbolCoords.any { n.touches(it.x) })
+                        || (y < candidates.size-1 && candidates[y+1].symbolCoords.any { n.touches(it.x) })
+            }
+            lineFiltered
+        }
+
+        val res1 = filtered.map { it.map{ it.number }.sum() }
+        val res = res1.sum()
+        return res
+    }
+
+    private fun generateCandidates(lines: List<String>) =
+        lines.map { line ->
+            val numbers = mutableListOf<PartNumber>()
+            val symbolCoords = mutableListOf<CoordX>()
+            var partialNumber = StringBuilder("")
+            var x0 = -1
+
+            line.forEachIndexed { x, c ->
+                if (c.isDigit()) {
+                    if(partialNumber.isEmpty()) x0 = x
+                    partialNumber.append(c)
+                }
+                else if( !c.isDigit()) {
+                    if( partialNumber.isNotEmpty()) {
+                        numbers += PartNumber(partialNumber, x0)
+                        partialNumber = StringBuilder("")
+//                        x0 = -1
+                    }
+                }
+                if( c != EmptyChar && !c.isDigit()) symbolCoords += CoordX(x)
+            }
+            if( partialNumber.isNotEmpty())
+                numbers += PartNumber(partialNumber, x0)
+
+            Line( numbers, symbolCoords)
+        }
+
+    private fun solveProblem2(lines: List<String> ): Long {
+        val candidates = generateCandidates( lines)
+
+        val filtered = candidates.mapIndexed { y, line ->
+            val gearsParts = line.symbolCoords.map { c ->
+                line.numbers.filter { it.touches( c.x) } +
+                        candidates[y-1].numbers.filter { it.touches( c.x) } +
+                        candidates[y+1].numbers.filter { it.touches( c.x) }
+            }
+            gearsParts
+        }.map { it.filter { it.size > 1}}
+
+        val res = filtered.flatMap { l ->
+            l.map { gear ->
+                gear[0].number.toLong() * gear[1].number.toLong()
+            }
+        }.sum()
+        return res
+    }
+}
