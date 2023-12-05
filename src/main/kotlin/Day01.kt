@@ -4,18 +4,10 @@ object Day01 {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        val example1 = runProblem("day01/in_example_1.txt", ::solveProblem1)
-        assert(example1 == 142) { System.err.println("ERROR at Example 1") }
-
-        val problem1 = runProblem("day01/in_problem_1.txt", ::solveProblem1)
-        assert(problem1 == 53080) { System.err.println("ERROR at Problem 1") }
-
-        val example2 = runProblem("day01/in_example_2.txt", ::solveProblem2)
-        assert(example2 == 281) { System.err.println("ERROR at Example 2") }
-
-        val problem2 = runProblem("day01/in_problem_1.txt", ::solveProblem2)
-        assert(problem2 == 53268) { System.err.println("ERROR at Example 2") }
-
+        runProblem("day01/in_example_1.txt", problem="Day01.Example 1", solution=142, ::solveProblem1)
+        runProblem("day01/in_problem_1.txt", problem="Day01.Problem 1", solution=53080, ::solveProblem1)
+        runProblem("day01/in_example_2.txt", problem="Day01.Example 2", solution=281, ::solveProblem2)
+        runProblem("day01/in_problem_1.txt", problem="Day01.Problem 2", solution=53268, ::solveProblem2)
     }
 
 
@@ -26,7 +18,7 @@ object Day01 {
             //println( "$firstDigit-$lasttDigit")
             firstDigit * 10 + lasttDigit
         }
-        println("codes=$codes")
+        //println("codes=$codes")
         return codes.sum()
     }
 
@@ -41,10 +33,10 @@ object Day01 {
         val codes = lines.map { line ->
             val firstDigit = searchFirst(line)
             val lastDigit = searchLast(line)
-            println("$firstDigit-$lastDigit")
+            //println("$firstDigit-$lastDigit")
             firstDigit * 10 + lastDigit
         }
-        println("codes=$codes")
+        //println("codes=$codes")
         return codes.sum()
     }
 

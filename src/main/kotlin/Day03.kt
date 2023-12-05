@@ -20,15 +20,10 @@ object Day03 {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        val example1 = runProblem("day03/in_1.txt", ::solveProblem1)
-        assert(example1 == 533784L)
-        val prloblem1 = runProblem("day03/in_2.txt", ::solveProblem1)
-        assert(prloblem1 == 533784L)
-
-        val example2 = runProblem("day03/in_b_1.txt", ::solveProblem2)
-        assert(example2 == 467835L)
-        val prloblem2 = runProblem("day03/in_2.txt", ::solveProblem2)
-        assert(prloblem2 == 78826761L)
+        runProblem("day03/in_1.txt", problem="Day03.Example 1", solution=4361L, ::solveProblem1)
+        runProblem("day03/in_2.txt", problem="Day03.Problem 1", solution=533784L, ::solveProblem1)
+        runProblem("day03/in_b_1.txt", problem="Day03.Example 2", solution=467835L, ::solveProblem2)
+        runProblem("day03/in_2.txt", problem="Day03.Problem 2", solution=78826761L, ::solveProblem2)
     }
 
 

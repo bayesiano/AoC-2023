@@ -9,17 +9,10 @@ object Day04 {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        val example1 = runProblem("day04/example_1.txt", ::solveProblem1)
-        assert(example1 == 13)
-
-        val problem1 = runProblem("day04/problem_1.txt", ::solveProblem1)
-        assert(problem1 == 21485)
-
-        val example2 = runProblem("day04/example_1.txt", ::solveProblem2)
-        assert(example2 == 30)
-
-        val problem2= runProblem("day04/problem_1.txt", ::solveProblem2)
-        assert(problem2 == 11024379)
+        runProblem("day04/example_1.txt", problem="Day04.Example 1", solution=13, ::solveProblem1)
+        runProblem("day04/problem_1.txt", problem="Day04.Problem 1", solution=21485, ::solveProblem1)
+        runProblem("day04/example_1.txt", problem="Day04.Example 2", solution=30, ::solveProblem2)
+        runProblem("day04/problem_1.txt", problem="Day04.Problem 2", solution=11024379, ::solveProblem2)
     }
 
     private fun solveProblem1(lines: List<String>): Int {
