@@ -84,13 +84,14 @@ object Day02 {
         return games.sumOf { it.power() }
     }
 
+    data class Game(val numGame: Int, val minCubes: Map<String, Int>) {
+        fun isCompatible(cubesInBag: Map<String, Int>) =
+            minCubes.entries.all { e ->
+                e.value <= cubesInBag.getOrDefault(e.key, 0)
+            }
+
+        fun power() = minCubes.values.reduce { acc, n -> acc * n }
+    }
+
 }
 
-data class Game(val numGame: Int, val minCubes: Map<String, Int>) {
-    fun isCompatible(cubesInBag: Map<String, Int>) =
-        minCubes.entries.all { e ->
-            e.value <= cubesInBag.getOrDefault(e.key, 0)
-        }
-
-    fun power() = minCubes.values.reduce { acc, n -> acc * n }
-}
