@@ -7,6 +7,23 @@ import kotlin.system.measureTimeMillis
 class Dummy()
 
 @Suppress("UNUSED")
+fun <T> runProblemSeq(filename: String, problem: String, solution: T, function: (Sequence<String>) -> T): T {
+    val stream = Dummy::class.java.classLoader.getResourceAsStream(filename).bufferedReader()
+    if( stream == null) {
+        println( "ERROR! $filename not existst!!!")
+        exitProcess( -1)
+    }
+//    val file = File(Dummy::class.java.classLoader.getResource(filename)!!.file)
+    var res: T
+    val us = measureNanoTime {
+        res = function( stream.lineSequence())
+    }
+    if( res != solution) System.err.println( "SOLUTION FOR $problem IS WRONG !!!!!  Response=$res, expected=$solution, time=${us/1000/1000.0} ms")
+    else println("It's the right solution for $problem: response = $res,  time=${us/1000/1000.0} ms")
+    return res
+}
+
+@Suppress("UNUSED")
 fun <T> runProblem(filename: String, problem: String, solution: T, function: (List<String>) -> T): T {
     val stream = Dummy::class.java.classLoader.getResource(filename)
     if( stream == null) {
