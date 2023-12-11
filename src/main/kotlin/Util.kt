@@ -1,5 +1,4 @@
 import java.io.File
-import java.io.FileReader
 import kotlin.system.exitProcess
 import kotlin.system.measureNanoTime
 import kotlin.system.measureTimeMillis
@@ -8,7 +7,7 @@ class Dummy()
 
 @Suppress("UNUSED")
 fun <T> runProblemSeq(filename: String, problem: String, solution: T, function: (Sequence<String>) -> T): T {
-    val stream = Dummy::class.java.classLoader.getResourceAsStream(filename).bufferedReader()
+    val stream = Dummy::class.java.classLoader.getResourceAsStream(filename)?.bufferedReader()
     if( stream == null) {
         println( "ERROR! $filename not existst!!!")
         exitProcess( -1)

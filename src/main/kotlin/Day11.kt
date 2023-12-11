@@ -2,7 +2,7 @@ import kotlin.math.abs
 
 object Day11 {
     private const val debug = false
-    const val day = "day11"
+    private const val day = "day11"
 
     @JvmStatic
     fun main(args: Array<String>) {
@@ -33,7 +33,7 @@ object Day11 {
     }
 
 
-    data class Route(val g0: Day11.Galaxy, val g1: Day11.Galaxy) {
+    data class Route(val g0: Galaxy, val g1: Galaxy) {
         val distance = abs(g0.x - g1.x) + abs(g0.y - g1.y)
     }
 
@@ -44,7 +44,7 @@ object Day11 {
         companion object {
             fun readGalaxies(lines: Sequence<String>, expansion: Long): List<Galaxy> {
                 var y = 0L
-                val galaxies = lines.mapIndexedNotNull { y0, line ->
+                val galaxies = lines.mapNotNull { line ->
                     if (!line.contains('#')) {
 //                log{ "Skipping $y"}
                         y += expansion
