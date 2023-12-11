@@ -32,7 +32,6 @@ object Day11 {
         return pairs.sumOf { it.distance }
     }
 
-
     data class Route(val g0: Galaxy, val g1: Galaxy) {
         val distance = abs(g0.x - g1.x) + abs(g0.y - g1.y)
     }
