@@ -1,6 +1,6 @@
 object Day10 {
     private const val debug = false
-    const val day = "day10"
+    private const val day = "day10"
 
     @JvmStatic
     fun main(args: Array<String>) {
@@ -29,24 +29,24 @@ object Day10 {
         return longestLoop.size / 2
     }
 
-    private fun permutations(routes: List<List<Day10.Pipes.CoordXY>>): List<List<Day10.Pipes.CoordXY>> =
+    private fun permutations(routes: List<List<Pipes.CoordXY>>): List<List<Pipes.CoordXY>> =
         listOf(routes[0] + routes[1].subList(0, routes[1].size - 1).reversed())
 
 
     class Pipes(val map: List<List<Char>>) {
         //        val start = findStart()
-        fun findStart(): CoordXY {
+        private fun findStart(): CoordXY {
             val startY = map.indexOfFirst { it.contains('S') }
             val startX = map[startY].indexOf('S')
             return CoordXY(startX, startY)
         }
 
-        val toNorthMovs = listOf('|', 'L', 'J', 'S')
-        val toEastMovs = listOf('-', 'L', 'F', 'S')
-        val toSouthMovs = listOf('|', '7', 'F', 'S')
-        val toWestMovs = listOf('-', '7', 'J', 'S')
+        private val toNorthMovs = listOf('|', 'L', 'J', 'S')
+        private val toEastMovs = listOf('-', 'L', 'F', 'S')
+        private val toSouthMovs = listOf('|', '7', 'F', 'S')
+        private val toWestMovs = listOf('-', '7', 'J', 'S')
 
-        fun getNexts(route: List<CoordXY>): List<CoordXY> {
+        private fun getNexts(route: List<CoordXY>): List<CoordXY> {
             val pos = route.last()
             val from = route.penultimate()
             val options = mutableListOf<CoordXY>()
@@ -73,9 +73,13 @@ object Day10 {
             if (pos.y !in map.indices || pos.x !in map[pos.y].indices) '.'
             else map[pos.y][pos.x]
 
-        fun longestLoop(): List<Pipes.CoordXY> {
+        fun getContent( x: Int, y: Int) =
+            if (y !in map.indices || x !in map[y].indices) '.'
+            else map[y][x]
+
+        fun longestLoop(): List<CoordXY> {
             var routes = listOf(listOf(findStart()))
-            var sol = listOf<Pipes.CoordXY>()
+            var sol = listOf<CoordXY>()
 
             while (routes.isNotEmpty()) {
                 routes = routes.flatMap { route ->
@@ -110,58 +114,7 @@ object Day10 {
     private fun solveProblem2(lines: List<String>): Int {
         val pipes = Pipes(lines.map { it.map { c -> c } })
         val longestLoop = pipes.longestLoop()
-        var totalInside = 0
-        /*
-                val isInside = Array<Boolean>(pipes.map.size) { false}
-                (0..<pipes.map.maxOf { it.size }).forEach { x ->
-                    isInside.indices.forEach { y ->
-                        val pos = Pipes.CoordXY( x, y)
 
-                        if( isInside[y] && pipes.getContent(pos) == '.')
-                            totalInside++
-                        else {
-                            if (pos in longestLoop && !isInside[y]) {
-                                when (pipes.getContent(pos)) {
-                                    '|' ->
-                                        isInside[y] = true
-                                }
-                            } else if (pos in longestLoop && isInside[y]) {
-                                when (pipes.getContent(pos)) {
-                                    '|', '7', 'J', 'F', 'L'  ->
-                                        isInside[y] = false
-                                }
-                            }
-                        }
-                    }
-                    log { "[$x] isInside=" + isInside.mapIndexed { y, v ->
-                        if (v && pipes.getContent(Pipes.CoordXY(x, y)) == '.') 'I'
-                        else if (v) 'i'
-                        else ' '
-                    } }
-                }
-        */
-
-        /*
-        val isInside = Array<Boolean>(pipes.map.size) { false}
-        (0..<pipes.map.maxOf { it.size }).forEach { x ->
-            isInside.indices.forEach { y ->
-                val pos = Pipes.CoordXY( x, y)
-                if( isInside[y] && pipes.getContent(pos) == '.') {
-                    totalInside++
-                    log{ "- $pos ss inside"}
-                }
-
-                val nextPos = Pipes.CoordXY( x+1, y)
-                if( pos in longestLoop && nextPos !in longestLoop) {
-                    isInside[y] = true
-                }
-                else if( pos !in longestLoop && nextPos in longestLoop) {
-                    isInside[y] = false
-
-                }
-            }
-        }
-*/
         val maxY = longestLoop.map { it.y }.max()
         val exs = (0..maxY)
             .map { y ->
@@ -169,268 +122,69 @@ object Day10 {
                     pos.y == y && pipes.getContent(Pipes.CoordXY(pos.x, y)) != '-'
                 }
                     .map { it.x }
-                    .toSortedSet()
+                    .toSortedSet().toList()
             }
 
-//        val exs2 = exs.mapIndexed{ y, row ->
-//            var inside = false
-//            row.windowed(2, step = 2).mapIndexed { count, l ->
-//
-//                val content0 = pipes.getContent( Pipes.CoordXY( l[0], y))
-//                val content1 = pipes.getContent( Pipes.CoordXY( l[1], y))
-//
-//                val res = if (!inside) {
-//                    if (content0 == '|' && content1 == '|' ) {
-//                        l[1] - l[0]- 1
-//                    }
-//                    else if (content0 == '|' && content1 == 'F' ) {
-//                        l[1] - l[0]- 1
-//                    }
-//                    else if (content0 == '|' && content1 == 'L' ) {
-//                        l[1] - l[0]- 1
-//                    }
-//                    else if (content0 == 'L' && content1 == '7' ) {
-//                        inside = true
-//                        0
-//                    }
-//                    else if (content0 == 'F' && content1 == 'J' ) {
-//                        inside = true
-//                        0
-//                    }
-//                    else 0
-//                }
-//                else {
-//                    if (content0 == 'L' && content1 == '7' ) {
-//                        inside = false
-//                        0
-//                    }
-//                    else if (content0 == 'F' && content1 == 'J' ) {
-//                        inside = false
-//                        0
-//                    }
-//                    //else if (!inside/*count % 2 == 0*/ && (pipes.getContent( Pipes.CoordXY( l[0], y)) == '|' || pipes.getContent( Pipes.CoordXY( l[1], y)) == '|' )) {
-//                    else 0
-//                }
-//                log { "y[$y], count=$count, $l, content=$content0 - $content1, sum=$res, inside= $inside" }
-//                res
-//            }
-//        }
-        /*        val exs2 = exs.mapIndexed{ y, row ->
-                    var inside = false
-                    row.windowed(2, step = 1).mapIndexed { count, l ->
-                        // oFJiL7oL7iLJiLJi|o|iLJiIL-7oOO
-                        val content0 = pipes.getContent( Pipes.CoordXY( l[0], y))
-                        val content1 = pipes.getContent( Pipes.CoordXY( l[1], y))
-                        val content = "$content0$content1"
+        val tilesInside = exs.mapIndexed { y, row ->
+            val rowContent = row.map { x -> pipes.getContent(x, y) }.joinToString("")
+//            val rowContentAroundStart = "${}rowContent.last()
+//            if( rowContentLast == 'F' && rowContent[1] == 'J' ) rowContentLast
+            sumRowTilesInside(row, rowContent)
+        }.sum()
 
-                        val res = if (!inside) {
-                            if (content == "||" ) {
-                                inside = true
-                                l[1] - l[0]- 1
-                            }
-                            else if (content == "|F" ) {
-                                inside = true
-                                l[1] - l[0]- 1
-                            }
-                            else if (content == "|L" ) {
-                                inside = true
-                                l[1] - l[0]- 1
-                            }
-                            else if (content == "J|" ) {
-                                inside = true
-                                l[1] - l[0]- 1
-                            }
-                            else if (content == "7|" ) {
-                                inside = true
-                                l[1] - l[0]- 1
-                            }
-                            else if (content == "7L" ) {
-                                inside = true
-                                0
-                            }
-                            else if (content == "L7" ) {
-                                inside = false
-                                0
-                            }
-                            else if (content == "FJ" ) {
-                                inside = true //false
-                                0
-                            }
-                            else if (content == "JL" ) {
-                                inside = true //false
-                                0
-                            }
-                            else if (content == "F7" ) {
-                                inside = true
-                                0
-                            }
-                            else 0
-                        }
-                        else {
-                            if (content == "||" ) {
-                                inside = false
-                                0
-                            }
-                            else if (content == "7|" ) {
-                                inside = false
-                                0
-                            }
-                            else if (content == "J|" ) {
-                                inside = false
-                                0
-                            }
-                            else if (content == "7F" ) {
-                                inside = false
-                                0
-                            }
-                            else if (content == "J|" ) {
-                                inside = false
-                                l[1] - l[0]- 1
-                            }
-                            else if (content == "L7" ) {
-                                inside = true //false //true
-                                0
-                            }
-                            else if (content == "FJ" ) {
-                                inside = true// false
-                                0
-                            }
-                            else if (content == "JL" ) {
-                                inside = true// false
-                                l[1] - l[0]- 1
-                            }
-                            //else if (!inside/*count % 2 == 0*/ && (pipes.getContent( Pipes.CoordXY( l[0], y)) == '|' || pipes.getContent( Pipes.CoordXY( l[1], y)) == '|' )) {
-                            else 0
-                        }
-                        log { "y[$y], count=$count, $l, content=$content0 - $content1, sum=$res, inside= $inside" }
-                        res
-                    }
-                }*/
-        val exs2 = exs.mapIndexed { y, row ->
-            var inside = false
-            var x = 0
-            var lastX = 0
-            val row2 = row.toList()
-            val res = mutableListOf<Int>()
-            //val endWithPipe = if( pipes.getContent(Pipes.CoordXY(row2.last(), y)) == '|') 1 else 0
-            while (x < row.size) {
-                //row.windowed(2, step = 2).mapIndexed { count, l ->
-                // oFJi L7o L7i LJi LJi |o |i LJi IL-7o OO
-
-                // oFiJi + L7o Li7i + LiJi + LiJi ||i Li Ji IL-7o OO
-                // FJL7L 7LJLJ ||LJI L-7OO
-                val content0 = pipes.getContent(Pipes.CoordXY(row2[x], y))
-                if (content0 == '|') {
-                    if (!inside) {
-                        inside = true
-                        lastX = row2[x]
-                        x += 1
-                        //res += l[1] - l[0] - 1
-                    } else {
-                        inside = false
-                        res += row2[x] - lastX - 1
-                        x += 1
-                    }
-                    log { "y[$y], x=$x, $row2[0], content=$content0 ,  sum=$res, inside= $inside, lastX=$lastX" }
-                } else {
-                    val l = listOf(row2[x], row2[x + 1])
-                    val content1 = pipes.getContent(Pipes.CoordXY(l[1], y))
-                    val content = "$content0$content1"
-
-                    if (!inside) {
-                        if (content == "J|") {
-                            inside = false
-                            x += 2
-                            res += l[1] - l[0] - 1
-                        } else if (content == "7|") {
-                            inside = false
-                            x += 2
-                            res += l[1] - l[0] - 1
-                        }
-//                    else if (content == "7L" ) {
-//                        inside = true
-//                        0
-//                    }
-                        else if (content == "L7") {
-                            inside = true
-                            x += 2
-//                        res += x - lastX -1
-                            lastX = l[1]
-                        } else if (content == "LJ") {
-                            inside = false
-                            x += 2
-//                        res += x - lastX -1
-                            //res += l[1] - l[0] - 1
-                        } else if (content == "FJ") {
-                            inside = true //false
-                            x += 2
-                            lastX = l[1]
-//                        res += x - lastX -1
-                        } else if (content == "F7") {
-                            inside = false
-                            x += 2
-//                        res += x - lastX -1
-                        } else if (content == "S7") {
-                            inside = false
-                            x += 2
-                            0
-                        } else if (content == "FS") {
-                            inside = false
-                            x += 2
-                        } else {
-                            throw Exception("Error $inside  ($x,$y) - $content")
-                        }
-                    } else {
-                        if (content == "L7") {
-                            inside = false // true false //true
-                            res += l[0] - lastX - 1
-                            x += 2
-                        } else if (content == "FJ") {
-                            inside = false // true// false
-                            x += 2
-                            res += l[0] - lastX - 1
-                        } else if (content == "F7") {
-                            inside = true
-                            x += 2
-//                        res += l[0] - lastX -1
-                            res += l[0] - lastX - 1
-                            lastX = l[1]
-                        } else if (content == "LJ") {
-                            inside = true
-                            x += 2
-                            res += l[0] - lastX - 1
-                            lastX = l[1]
-                        } else if (content == "S7") {
-                            inside = false
-                            x += 2
-                            res += l[0] - lastX - 1
-                            lastX = l[1]
-                        }
-//                    else if (content == "JL" ) {
-//                        inside = true// false
-//                        l[1] - l[0]- 1
-//                    }
-                        //else if (!inside/*count % 2 == 0*/ && (pipes.getContent( Pipes.CoordXY( l[0], y)) == '|' || pipes.getContent( Pipes.CoordXY( l[1], y)) == '|' )) {
-                        else {
-                            throw Exception("Error $inside  ($x,$y) - $content")
-                            0
-                        }
-                    }
-                    log { "y[$y], x=$x, $l, content=$content ,  sum=$res, inside= $inside, lastX=$lastX" }
-                }
-//                lastX = l[1]
-
-            }
-            res
-        }
-
-        exs2.forEachIndexed { y, values ->
-            log { "exs[$y]=$values" }
-        }
-        return exs2.sumOf { it.sum() }
+        return tilesInside
     }
+
+    private fun sumRowTilesInside(
+        row: List<Int>, rowContent: String, inside: Boolean = false,
+        lastXinside: Int = 0, res: Int = 0
+    ): Int =
+        if (row.isEmpty()) res
+        else if (rowContent[0] == '|') {
+            if (!inside)  sumRowTilesInside( row.drop(1), rowContent.drop(1), true, lastXinside = row[0], res )
+            else sumRowTilesInside( row.drop(1), rowContent.drop(1), false, lastXinside = 0,
+                res + row[0] - lastXinside - 1)
+        }
+        else if (!inside) {
+                if (rowContent.startsWith("J|") || rowContent.startsWith("7|")) {
+                    sumRowTilesInside(
+                        row.drop(2), rowContent.drop(2), inside = false,
+                        lastXinside = 0, res + row[0] - row[1] - 1
+                    )
+                } else if (rowContent.startsWith("L7") || rowContent.startsWith("FJ")) {
+                    sumRowTilesInside(row.drop(2), rowContent.drop(2), true, lastXinside = row[1], res)
+                } else if (rowContent.startsWith("LJ") || rowContent.startsWith("F7")) {
+                    sumRowTilesInside(row.drop(2), rowContent.drop(2), false, lastXinside = 0, res)
+                } else if (rowContent.startsWith("S7")) {
+                    sumRowTilesInside(row.drop(2), rowContent.drop(2), false, lastXinside = 0, res)
+                } else if (rowContent.startsWith("FS")) {
+                    sumRowTilesInside(row.drop(2), rowContent.drop(2), false, lastXinside = 0, res)
+                } else {
+                    throw Exception("Error Outside  $row - $rowContent")
+                }
+        } else {
+                if (rowContent.startsWith("L7") || rowContent.startsWith("FJ")) {
+                    sumRowTilesInside(
+                        row.drop(2), rowContent.drop(2), false,
+                        lastXinside = 0, res + row[0] - lastXinside - 1
+                    )
+                } else if (rowContent.startsWith("F7") || rowContent.startsWith("LJ")) {
+                    sumRowTilesInside( row.drop(2), rowContent.drop(2), true, lastXinside = row[1],
+                        res + row[0] - lastXinside - 1
+                    )
+                } else if (rowContent.startsWith("S7")) {
+                    sumRowTilesInside( row.drop(2), rowContent.drop(2), false, lastXinside = 0,
+                        res + row[0] - lastXinside - 1
+                    )
+                } else {
+                    throw Exception("Error Inside  $row - $rowContent")
+                }
+            }
+
+
 
     fun log(s: () -> String) {
         if (debug) println(s())
     }
+
 }
