@@ -7,8 +7,8 @@ object Day13 {
         runProblemSeq("$day/example_1.txt", problem = "$day.Example 1", solution = 405, ::solveProblem1)
         runProblemSeq("$day/problem_1.txt", problem = "$day.Problem 1", solution = 37718, ::solveProblem1)
 
-        runProblemSeq("$day/example_1.txt", problem = "$day.Example 2", solution = 400, ::solveProblem2)
-        runProblemSeq("$day/problem_1.txt", problem = "$day.Problem 2", solution = 40995, ::solveProblem2) // 1974, 1695
+        runProblemRaw("$day/example_1.txt", problem = "$day.Example 2", solution = 400, ::solveProblem2)
+        runProblemRaw("$day/problem_1.txt", problem = "$day.Problem 2", solution = 40995, ::solveProblem2) // 1974, 1695
     }
 
     private fun solveProblem1(lines: Sequence<String>): Int {
@@ -91,17 +91,6 @@ object Day13 {
                 }
                 return paterns
             }
-//
-//            fun readPatterns2(lines: Sequence<String>) = sequence {
-//                val lastOne = lines.fold( listOf<String>()) { acc, line ->
-//                    if (line.isEmpty()) {
-//                        yield( Pattern(acc))
-//                        listOf<String>()
-//                    }
-//                    else acc + line
-//                }
-//                yield (Pattern(lastOne))
-//            }
         }
     }
 
@@ -113,8 +102,8 @@ object Day13 {
     // ***      PART 2
     // ***
 
-    private fun solveProblem2(lines: Sequence<String>): Int {
-        val patterns = Pattern.readPatterns(lines)
+    private fun solveProblem2(input: String): Int {
+        val patterns = input.split("\n\n").map { Pattern(it.split("\n")) }
         val res = patterns.mapIndexed{ i, pattern ->
             val res = pattern.findReflectionSmudged()
             log { "Pattern $i - res=$res" }
