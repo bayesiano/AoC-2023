@@ -9,6 +9,8 @@ object Day13 {
 
         runProblemRaw("$day/example_1.txt", problem = "$day.Example 2", solution = 400, ::solveProblem2)
         runProblemRaw("$day/problem_1.txt", problem = "$day.Problem 2", solution = 40995, ::solveProblem2) // 1974, 1695
+
+        println()
     }
 
     private fun solveProblem1(input: String): Int {

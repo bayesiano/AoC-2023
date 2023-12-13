@@ -13,6 +13,7 @@ object Day13b {
         runProblemRaw("$day/problem_1.txt", problem = "$day b.Problem 2", solution = 40995) { input ->
             solveProblem1( input, 1)
         }
+        println()
     }
 
     private fun solveProblem1(input: String, maxSmudges: Int = 0): Int {

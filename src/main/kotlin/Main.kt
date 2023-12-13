@@ -13,6 +13,10 @@ fun main(args: Array<String>) {
 //    Day10.main(args)
 //    Day11.main(args)
 //    Day12.main(args)
+
+    // Warm up
+    Day13.main(args)
     Day13.main(args)
     Day13b.main(args)
+    Day13c.main(args)
 }
