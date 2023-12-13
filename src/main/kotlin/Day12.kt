@@ -7,8 +7,8 @@ object Day12 {
         runProblemSeq("$day/example_1.txt", problem = "$day.Example 1", solution = 21L, ::solveProblem1) // 6:40
         runProblemSeq("$day/problem_1.txt", problem = "$day.Problem 1", solution = 7047L, ::solveProblem1)
 
-        runProblemSeq("$day/example_1.txt", problem = "$day.Example 1", solution = 525152L, ::solveProblem2)
-        runProblemSeq("$day/problem_1.txt", problem = "$day.Problem 1", solution = 17391848518844L, ::solveProblem2)
+        runProblemSeq("$day/example_1.txt", problem = "$day.Example 2", solution = 525152L, ::solveProblem2)
+        runProblemSeq("$day/problem_1.txt", problem = "$day.Problem 2", solution = 17391848518844L, ::solveProblem2)
 
         println("cache entries = ${cache2.size}")
     }
@@ -17,12 +17,17 @@ object Day12 {
         val total = lines.mapIndexed { i, line ->
             val (springs, groupsStr) = line.split(' ')
             val groups = groupsStr.split(',').map { it.toInt() }
-            val res = arrangements2(Problem2(springs, 0, null, groups))
+            val res = arrangements2(Problem2( simplifyDots(springs), 0, null, groups))
             log { "RES $springs = $res ----------------------------------" }
 //            println("RES $i-$springs = $res ----------------------------------")
             res
         }.sum()
         return total
+    }
+
+    private fun simplifyDots(inputSprings: String): String {
+        val rx = Regex( """\.+""")
+        return inputSprings.replace( rx, ".").trim('.')
     }
 
     // ***************************************************
@@ -37,7 +42,7 @@ object Day12 {
             val groupsStrN = (1..<5).fold( groupsStr) { acc, _ -> "$acc,$groupsStr" }
             val groupsN = groupsStrN.split(',').map { it.toInt() }
 //            println("$i-$springsN - %groupsStr5 =  ----------------------------------")
-            val res = arrangements2(Problem2(springsN, 0, null, groupsN))
+            val res = arrangements2(Problem2(simplifyDots(springsN), 0, null, groupsN))
             log { "RES $springsN = $res ----------------------------------" }
 //            println("RES $i-$springsN - $groupsStrN = $res - (cache=${cache2.keys.size}) ----------------------------------")
             res
@@ -78,7 +83,9 @@ object Day12 {
         val maxPossibleBlock = nextSprings.split(blanks).maxOf { it.length }
         if (p.groups.any { it > maxPossibleBlock }) return 0
 
+
         // Main checks and recursive call
+        //
         val res2 = when (p.springs[p.iSpring]) {
             '.' -> when (p.current) {
                         null -> arrangements2(Problem2(p.springs, p.iSpring + 1, null, p.groups))

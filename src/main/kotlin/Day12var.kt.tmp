@@ -1,0 +1,150 @@
+object Day12var {
+    private const val debug = false
+    private const val day = "day12"
+
+    @JvmStatic
+    fun main(args: Array<String>) {
+        runProblemSeq("$day/example_1.txt", problem = "$day.Example 1", solution = 21L, ::solveProblem1) // 6:40
+        runProblemSeq("$day/problem_1.txt", problem = "$day.Problem 1", solution = 7047L, ::solveProblem1)
+
+        runProblemSeq("$day/example_1.txt", problem = "$day.Example 2", solution = 525152L, ::solveProblem2)
+        runProblemSeq("$day/problem_1.txt", problem = "$day.Problem 2", solution = 17391848518844L, ::solveProblem2)
+
+        println("cache entries = ${cache2.size}")
+    }
+
+    private fun solveProblem1(lines: Sequence<String>): Long {
+        val total = lines.mapIndexed { i, line ->
+            val (springs, groupsStr) = line.split(' ')
+            val groups = groupsStr.split(',').map { it.toInt() }
+            val res = arrangements2(Problem2( simplify(springs), 0, null, groups))
+            log { "RES $springs = $res ----------------------------------" }
+//            println("RES $i-$springs = $res ----------------------------------")
+            res
+        }.sum()
+        return total
+    }
+
+    private fun simplify( inputSprings: String): String {
+        val rx = Regex( """\.+""")
+        return inputSprings.replace( rx, ".")
+    }
+
+    // ***************************************************
+    // ***
+    // ***      PART 2
+    // ***
+
+    private fun solveProblem2(lines: Sequence<String>): Long {
+        val total = lines.mapIndexed { i, line ->
+            val (springs, groupsStr) = line.split(' ')
+            val springsN = (1..<5).fold( springs) { acc, _ -> "$acc?$springs" }
+            val groupsStrN = (1..<5).fold( groupsStr) { acc, _ -> "$acc,$groupsStr" }
+            val groupsN = groupsStrN.split(',').map { it.toInt() }
+//            println("$i-$springsN - %groupsStr5 =  ----------------------------------")
+            val res = arrangements2(Problem2(simplify(springsN), 0, null, groupsN))
+            log { "RES $springsN = $res ----------------------------------" }
+//            println("RES $i-$springsN - $groupsStrN = $res - (cache=${cache2.keys.size}) ----------------------------------")
+            res
+        }.sum()
+        return total
+    }
+
+    data class Problem2(val springs: String, var iSpring: Int, var current: Int?, var groups: List<Int>)
+
+    private val cache2 = mutableMapOf<Problem2, Long>()
+
+    private val blanks = Regex("""\.+""")
+
+    private fun arrangements2(p: Problem2): Long {
+        var end = false
+        var res = 0L
+        
+        loop@ while( !end) {
+            // Cache check
+            val c = cache2[p]
+            if( c != null)  { 
+                res += c
+                end = true
+                break@loop 
+            }
+
+            // Help variables
+            val nextSprings = p.springs.substring(p.iSpring)
+
+            // End conditions check
+            if (nextSprings.trim('.', '?').isEmpty() && p.groups.isEmpty() && (p.current == null || p.current == 0)) {
+                res += 1
+                end = true
+                break@loop
+            }
+            if (nextSprings.trim('.').isEmpty() && (p.groups.isNotEmpty() || (p.current != null && p.current!! > 0))) {
+                end = true
+                break@loop
+            }
+
+            // Tricks to discard impossible branches. Reduce cache from 762106 to 427578 but increase time from +-275.06 ms to +-592.977 ms
+            //
+            if (nextSprings.contains('#') && (p.groups.isEmpty() && (p.current == null || p.current == 0))) {
+                end = true
+                break@loop
+            }
+
+            val minChars = p.groups.sumOf { it + 1 } - 1
+            if (nextSprings.length < minChars) {
+                end = true
+                break@loop
+            }
+
+            val minNotEmpty = p.groups.sumOf { it }
+            if (nextSprings.filter { it != '.' }.length < minNotEmpty) {
+                end = true
+                break@loop
+            }
+
+            val maxPossibleBlock = nextSprings.split(blanks).maxOf { it.length }
+            if (p.groups.any { it > maxPossibleBlock }) return 0
+
+
+
+            // Main checks and recursive call
+            //
+            val res2 = when (p.springs[p.iSpring]) {
+                '.' -> when (p.current) {
+                    null -> {
+                        p.iSpring++
+                        continue
+                    }
+
+                    0 -> arrangements2(Problem2(p.springs, p.iSpring + 1, null, p.groups))
+                    else -> 0
+                }
+
+
+                '#' -> if (p.current == null) {
+                    if (p.groups.isEmpty()) 0
+                    else arrangements2(Problem2(p.springs, p.iSpring + 1, p.groups[0] - 1, p.groups.drop(1)))
+                } else if (p.current == 0) 0
+                else arrangements2(Problem2(p.springs, p.iSpring + 1, p.current - 1, p.groups))
+
+                '?' -> when (p.current) {
+                    null -> arrangements2(Problem2(p.springs, p.iSpring + 1, null, p.groups)) +
+                            if (p.groups.isEmpty()) 0
+                            else arrangements2(Problem2(p.springs, p.iSpring + 1, p.groups[0] - 1, p.groups.drop(1)))
+
+                    0 -> arrangements2(Problem2(p.springs, p.iSpring + 1, null, p.groups))
+                    else -> arrangements2(Problem2(p.springs, p.iSpring + 1, p.current - 1, p.groups))
+                }
+
+                else -> 0
+            }
+        }
+        // Caches the result
+        cache2[p] = res2
+        return res2
+    }
+
+    private fun log(s: () -> String) {
+        if (debug) println(s())
+    }
+}
