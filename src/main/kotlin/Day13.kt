@@ -4,15 +4,15 @@ object Day13 {
 
     @JvmStatic
     fun main(args: Array<String>) {
-        runProblemSeq("$day/example_1.txt", problem = "$day.Example 1", solution = 405, ::solveProblem1)
-        runProblemSeq("$day/problem_1.txt", problem = "$day.Problem 1", solution = 37718, ::solveProblem1)
+        runProblemRaw("$day/example_1.txt", problem = "$day.Example 1", solution = 405, ::solveProblem1)
+        runProblemRaw("$day/problem_1.txt", problem = "$day.Problem 1", solution = 37718, ::solveProblem1)
 
         runProblemRaw("$day/example_1.txt", problem = "$day.Example 2", solution = 400, ::solveProblem2)
         runProblemRaw("$day/problem_1.txt", problem = "$day.Problem 2", solution = 40995, ::solveProblem2) // 1974, 1695
     }
 
-    private fun solveProblem1(lines: Sequence<String>): Int {
-        val patterns = Pattern.readPatterns(lines).toList()
+    private fun solveProblem1(input: String): Int {
+        val patterns = input.split("\n\n").map { Pattern(it.split("\n")) }
         val res = patterns.mapIndexed{ i, pattern ->
             val res = pattern.findReflection()
             log { "Pattern $i - res=$res" }
@@ -74,23 +74,6 @@ object Day13 {
                 }
             }
             return isVertialReflectionSmudged(j1-1, j2+1, _smudged)
-        }
-
-        companion object {
-            fun readPatterns(lines: Sequence<String>): List<Pattern> {
-                val paterns = mutableListOf<Pattern>()
-                var group = mutableListOf<String>()
-                lines.forEach { line ->
-                    if (line.isEmpty()) {
-                        paterns += Pattern(group)
-                        group = mutableListOf<String>()
-                    } else group += line
-                }
-                if (group.isNotEmpty()) {
-                    paterns += Pattern(group)
-                }
-                return paterns
-            }
         }
     }
 
