@@ -23,11 +23,11 @@ object Day13c {
     }
 
     private fun solveProblem1(input: String, maxSmudges: Int = 0): Int = runBlocking {
-        input.split("\n\n").map { mirror ->
+        input.splitToSequence("\n\n").map { mirror ->
             async(Dispatchers.Default) {
                 Pattern.readPattern( mirror.split('\n'))
                 .findReflection(maxSmudges) }
-        }.fold(0) { total, r -> total + r.await()}
+        }.toList().fold(0) { total, r -> total + r.await()}
     }
 
     class Pattern(private val patternH: Array<List<Int>>, private val patternV: Array<List<Int>>) {
