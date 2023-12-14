@@ -20,5 +20,6 @@ fun main(args: Array<String>) {
 //    Day13b.main(args)
 //    Day13c.main(args)
     Day14.main(args)
+    Day14b.main(args)
 
 }
