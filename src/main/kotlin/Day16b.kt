@@ -1,7 +1,7 @@
-import Day16.MirrorMap.Dir.*
+import Day16b.MirrorMap.Dir.*
 import kotlin.math.max
 
-object Day16 {
+object Day16b {
 
     private const val debug = true
     private const val day = "day16"
@@ -45,7 +45,7 @@ object Day16 {
         }
 
         private fun newRayTracingMap(map: Array<CharArray>) =
-            Array(Dir.values().size) { Array( map.size) { CharArray( map[0].size)} }
+            Array(Dir.entries.size) { Array(map.size) { CharArray(map[0].size) } }
 
         fun calculateRayTracingEnergy(x: Int, y: Int, dir: Dir): Int {
             val map = newRayTracingMap(baseMap)
@@ -62,43 +62,42 @@ object Day16 {
                 }
             }
 
-        private fun rayTracing(map: Array<Array<CharArray>>, x: Int, y: Int, dir: Dir) {
-            if (x !in baseMap[0].indices || y !in baseMap.indices || map[dir.ordinal][y][x] == '#') return
+        private fun rayTracing(map: Array<Array<CharArray>>, x0: Int, y0: Int, dir0: Dir) {
+            var x = x0
+            var y = y0
+            var dir = dir0
+            while (true) {
+                if (x !in baseMap[0].indices || y !in baseMap.indices || map[dir.ordinal][y][x] == '#') return
 //        if( debug) print(map0, map)
-            map[dir.ordinal][y][x] = '#'
-            when (baseMap[y][x]) {
-                '.' -> rayTracing(map, x + dir.incX, y + dir.incY, dir)
-                '|' -> if (dir == EAST || dir == WEST) {
-                    rayTracing(map, x + NORTH.incX, y + NORTH.incY, NORTH)
-                    rayTracing(map, x + SOUTH.incX, y + SOUTH.incY, SOUTH)
-                } else rayTracing(map, x + dir.incX, y + dir.incY, dir)
+                map[dir.ordinal][y][x] = '#'
+                when (baseMap[y][x]) {
+                    '|' -> if (dir == EAST || dir == WEST) {
+                        rayTracing(map, x + NORTH.incX, y + NORTH.incY, NORTH)
+                        dir = SOUTH
+                    }
 
-                '-' -> if (dir == NORTH || dir == SOUTH) {
-                    rayTracing(map, x + EAST.incX, y + EAST.incY, EAST)
-                    rayTracing(map, x + WEST.incX, y + WEST.incY, WEST)
-                } else rayTracing(map, x + dir.incX, y + dir.incY, dir)
+                    '-' -> if (dir == NORTH || dir == SOUTH) {
+                        rayTracing(map, x + EAST.incX, y + EAST.incY, EAST)
+                        dir = WEST
+                    }
 
-                '/' -> if (dir == EAST) {
-                    rayTracing(map, x + NORTH.incX, y + NORTH.incY, NORTH)
-                } else if (dir == SOUTH) {
-                    rayTracing(map, x + WEST.incX, y + WEST.incY, WEST)
-                } else if (dir == WEST) {
-                    rayTracing(map, x + SOUTH.incX, y + SOUTH.incY, SOUTH)
-                } else {
-                    rayTracing(map, x + EAST.incX, y + EAST.incY, EAST)
+                    '/' -> dir = when (dir) {
+                        EAST -> NORTH
+                        SOUTH -> WEST
+                        WEST -> SOUTH
+                        else -> EAST
+                    }
+
+
+                    '\\' -> dir = when (dir) {
+                        WEST -> NORTH
+                        NORTH -> WEST
+                        EAST -> SOUTH
+                        else -> EAST
+                    }
                 }
-
-                '\\' -> if (dir == WEST) {
-                    rayTracing(map, x + NORTH.incX, y + NORTH.incY, NORTH)
-                } else if (dir == NORTH) {
-                    rayTracing(map, x + WEST.incX, y + WEST.incY, WEST)
-                } else if (dir == EAST) {
-                    rayTracing(map, x + SOUTH.incX, y + SOUTH.incY, SOUTH)
-                } else {
-                    rayTracing(map, x + EAST.incX, y + EAST.incY, EAST)
-                }
-
-                else -> System.err.println("ERROR ($x,$y) $dir = ${baseMap[y][x]}")
+                x += dir.incX
+                y += dir.incY
             }
         }
 
