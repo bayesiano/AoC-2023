@@ -12,7 +12,8 @@ object Day16 {
         runProblemRaw("$day/problem_1.txt", problem = "$day.Problem 1", solution = 6902, ::solveProblem1)
 //
         runProblemRaw("$day/example_1.txt", problem = "$day.Example 2", solution = 51, ::solveProblem2)
-        runProblemRaw("$day/problem_1.txt", problem = "$day.Problem 2", solution = 7697, ::solveProblem2)
+        runProblemRawTest("$day/problem_1.txt", problem = "$day.Problem 2", solution = 7697, ::solveProblem2)
+        println()
     }
 
     private fun solveProblem1(input: String): Int {
@@ -45,7 +46,7 @@ object Day16 {
         }
 
         private fun newRayTracingMap(map: Array<CharArray>) =
-            Array(Dir.values().size) { Array( map.size) { CharArray( map[0].size)} }
+            Array(Dir.entries.size) { Array( map.size) { CharArray( map[0].size)} }
 
         fun calculateRayTracingEnergy(x: Int, y: Int, dir: Dir): Int {
             val map = newRayTracingMap(baseMap)

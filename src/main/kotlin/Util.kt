@@ -38,6 +38,25 @@ fun <T> runProblemRaw(filename: String, problem: String, solution: T, function: 
     return res
 }
 
+fun <T> runProblemRawTest(filename: String, problem: String, solution: T, function: (String) -> T): T {
+    val stream = Dummy::class.java.classLoader.getResourceAsStream(filename)?.bufferedReader()
+    if( stream == null) {
+        println( "ERROR! $filename not existst!!!")
+        exitProcess( -1)
+    }
+//    val file = File(Dummy::class.java.classLoader.getResource(filename)!!.file)
+    val input = stream.readText()
+    var res = function(input)
+    val us = measureNanoTime {
+        (1..10).forEach { _ ->
+            res = function(input)
+        }
+    }
+    if( res != solution) System.err.println( "SOLUTION FOR $problem IS WRONG !!!!!  Response=$res, expected=$solution, time=${us/1000/1000.0} ms")
+    else println("It's the right solution for $problem: response = $res,  time=${us/1000/1000.0} ms")
+    return res
+}
+
 
 @Suppress("UNUSED")
 fun <T> runProblem(filename: String, problem: String, solution: T, function: (List<String>) -> T): T {
